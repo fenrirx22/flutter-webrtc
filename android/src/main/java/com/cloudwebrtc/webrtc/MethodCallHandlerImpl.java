@@ -903,9 +903,6 @@ public class MethodCallHandlerImpl implements MethodCallHandler, StateProvider {
         break;
       }
       default:
-        if(frameCryptor.handleMethodCall(call, result)) {
-          break;
-        }
         result.notImplemented();
         break;
     }
