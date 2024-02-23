@@ -6,6 +6,8 @@
 
 #import "FlutterRTCFrameCapturer.h"
 
+#include "libyuv.h"
+
 @import CoreImage;
 @import CoreVideo;
 
@@ -126,46 +128,46 @@
     uint8_t* dstUV = CVPixelBufferGetBaseAddressOfPlane(outputPixelBuffer, 1);
     const size_t dstUVStride = CVPixelBufferGetBytesPerRowOfPlane(outputPixelBuffer, 1);
 
-    [RTCYUVHelper I420ToNV12:i420Buffer.dataY
-                  srcStrideY:i420Buffer.strideY
-                        srcU:i420Buffer.dataU
-                  srcStrideU:i420Buffer.strideU
-                        srcV:i420Buffer.dataV
-                  srcStrideV:i420Buffer.strideV
-                        dstY:dstY
-                  dstStrideY:(int)dstYStride
-                       dstUV:dstUV
-                 dstStrideUV:(int)dstUVStride
-                       width:i420Buffer.width
-                       width:i420Buffer.height];
+    I420ToNV12(i420Buffer.dataY,
+               i420Buffer.strideY,
+               i420Buffer.dataU,
+               i420Buffer.strideU,
+               i420Buffer.dataV,
+               i420Buffer.strideV,
+               dstY,
+               (int)dstYStride,
+               dstUV,
+               (int)dstUVStride,
+               i420Buffer.width,
+               i420Buffer.height);
   } else {
     uint8_t* dst = CVPixelBufferGetBaseAddress(outputPixelBuffer);
     const size_t bytesPerRow = CVPixelBufferGetBytesPerRow(outputPixelBuffer);
 
     if (pixelFormat == kCVPixelFormatType_32BGRA) {
       // Corresponds to libyuv::FOURCC_ARGB
-      [RTCYUVHelper I420ToARGB:i420Buffer.dataY
-                    srcStrideY:i420Buffer.strideY
-                          srcU:i420Buffer.dataU
-                    srcStrideU:i420Buffer.strideU
-                          srcV:i420Buffer.dataV
-                    srcStrideV:i420Buffer.strideV
-                       dstARGB:dst
-                 dstStrideARGB:(int)bytesPerRow
-                         width:i420Buffer.width
-                        height:i420Buffer.height];
+      I420ToARGB(i420Buffer.dataY,
+                 i420Buffer.strideY,
+                 i420Buffer.dataU,
+                 i420Buffer.strideU,
+                 i420Buffer.dataV,
+                 i420Buffer.strideV,
+                 dst,
+                 (int)bytesPerRow,
+                 i420Buffer.width,
+                 i420Buffer.height);
     } else if (pixelFormat == kCVPixelFormatType_32ARGB) {
       // Corresponds to libyuv::FOURCC_BGRA
-      [RTCYUVHelper I420ToBGRA:i420Buffer.dataY
-                    srcStrideY:i420Buffer.strideY
-                          srcU:i420Buffer.dataU
-                    srcStrideU:i420Buffer.strideU
-                          srcV:i420Buffer.dataV
-                    srcStrideV:i420Buffer.strideV
-                       dstBGRA:dst
-                 dstStrideBGRA:(int)bytesPerRow
-                         width:i420Buffer.width
-                        height:i420Buffer.height];
+      I420ToBGRA(i420Buffer.dataY,
+                 i420Buffer.strideY,
+                 i420Buffer.dataU,
+                 i420Buffer.strideU,
+                 i420Buffer.dataV,
+                 i420Buffer.strideV,
+                 dst,
+                 (int)bytesPerRow,
+                 i420Buffer.width,
+                 i420Buffer.height);
     }
   }
   CVPixelBufferUnlockBaseAddress(outputPixelBuffer, 0);

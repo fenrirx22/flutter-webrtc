@@ -1,0 +1,4 @@
+framework module webrtc_tvOSEmpty {
+  header "webrtc_tvOSEmpty-Swift.h"
+  requires objc
+}

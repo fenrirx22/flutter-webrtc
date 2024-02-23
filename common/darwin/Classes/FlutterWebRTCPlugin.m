@@ -5,7 +5,6 @@
 #import "FlutterRTCMediaStream.h"
 #import "FlutterRTCPeerConnection.h"
 #import "FlutterRTCVideoRenderer.h"
-#import "FlutterRTCFrameCryptor.h"
 
 #import <AVFoundation/AVFoundation.h>
 #import <WebRTC/RTCFieldTrials.h>
@@ -20,7 +19,7 @@
 @interface VideoDecoderFactory : RTCDefaultVideoDecoderFactory
 @end
 
-@interface VideoEncoderFactorySimulcast : RTCVideoEncoderFactorySimulcast
+@interface VideoEncoderFactorySimulcast : RTCDefaultVideoEncoderFactory
 @end
 
 NSArray<RTC_OBJC_TYPE(RTCVideoCodecInfo) *>* motifyH264ProfileLevelId(
@@ -151,8 +150,6 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
   self.localStreams = [NSMutableDictionary new];
   self.localTracks = [NSMutableDictionary new];
   self.renders = [NSMutableDictionary new];
-  self.frameCryptors = [NSMutableDictionary new];
-  self.keyProviders = [NSMutableDictionary new];
   self.videoCapturerStopHandlers = [NSMutableDictionary new];
 #if TARGET_OS_IPHONE
   AVAudioSession* session = [AVAudioSession sharedInstance];
@@ -228,10 +225,10 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
         VideoDecoderFactory* decoderFactory = [[VideoDecoderFactory alloc] init];
         VideoEncoderFactory* encoderFactory = [[VideoEncoderFactory alloc] init];
 
-        VideoEncoderFactorySimulcast* simulcastFactory =
-            [[VideoEncoderFactorySimulcast alloc] initWithPrimary:encoderFactory fallback:encoderFactory];
+//        VideoEncoderFactorySimulcast* simulcastFactory =
+//            [[VideoEncoderFactorySimulcast alloc] initWithPrimary:encoderFactory fallback:encoderFactory];
 
-        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] initWithEncoderFactory:simulcastFactory
+        _peerConnectionFactory = [[RTCPeerConnectionFactory alloc] initWithEncoderFactory:encoderFactory
                                                                            decoderFactory:decoderFactory];
 
         RTCPeerConnectionFactoryOptions *options = [[RTCPeerConnectionFactoryOptions alloc] init];
@@ -1334,7 +1331,7 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
                 details:nil]);
     }
   } else {
-    [self handleFrameCryptorMethodCall:call result:result];
+
   }
 }
 
@@ -1949,9 +1946,9 @@ void postEvent(FlutterEventSink sink, id _Nullable event) {
     [encoding setScaleResolutionDownBy:(NSNumber*)map[@"scaleResolutionDownBy"]];
   }
 
-  if (map[@"scalabilityMode"] != nil) {
-    [encoding setScalabilityMode:(NSString*)map[@"scalabilityMode"]];
-  }
+//  if (map[@"scalabilityMode"] != nil) {
+//    [encoding setScalabilityMode:(NSString*)map[@"scalabilityMode"]];
+//  }
 
   return encoding;
 }

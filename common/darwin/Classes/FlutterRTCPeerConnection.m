@@ -732,26 +732,26 @@ NSDictionary<NSString*, NSString*>* stringToParameters(NSString* str) {
 
 - (void)peerConnectionGetRtpReceiverCapabilities:(nonnull NSDictionary*)argsMap
                                           result:(nonnull FlutterResult)result {
-  NSString* kind = argsMap[@"kind"];
-  RTCRtpCapabilities* caps =
-      [self.peerConnectionFactory rtpReceiverCapabilitiesFor:mediaTypeFromString(kind)];
+//  NSString* kind = argsMap[@"kind"];
+//  RTCRtpCapabilities* caps =
+//      [self.peerConnectionFactory rtpReceiverCapabilitiesFor:mediaTypeFromString(kind)];
   NSMutableArray* codecsMap = [NSMutableArray array];
-  for (RTCRtpCodecCapability* c in caps.codecs) {
-    if ([kind isEqualToString:@"audio"]) {
-      [codecsMap addObject:@{
-        @"channels" : c.numChannels,
-        @"clockRate" : c.clockRate,
-        @"mimeType" : c.mimeType,
-        @"sdpFmtpLine" : parametersToString(c.parameters),
-      }];
-    } else if ([kind isEqualToString:@"video"]) {
-      [codecsMap addObject:@{
-        @"clockRate" : c.clockRate,
-        @"mimeType" : c.mimeType,
-        @"sdpFmtpLine" : parametersToString(c.parameters),
-      }];
-    }
-  }
+//  for (RTCRtpCodecCapability* c in caps.codecs) {
+//    if ([kind isEqualToString:@"audio"]) {
+//      [codecsMap addObject:@{
+//        @"channels" : c.numChannels,
+//        @"clockRate" : c.clockRate,
+//        @"mimeType" : c.mimeType,
+//        @"sdpFmtpLine" : parametersToString(c.parameters),
+//      }];
+//    } else if ([kind isEqualToString:@"video"]) {
+//      [codecsMap addObject:@{
+//        @"clockRate" : c.clockRate,
+//        @"mimeType" : c.mimeType,
+//        @"sdpFmtpLine" : parametersToString(c.parameters),
+//      }];
+//    }
+//  }
   result(@{
     @"codecs" : codecsMap,
     @"headerExtensions" : @[],
@@ -761,26 +761,26 @@ NSDictionary<NSString*, NSString*>* stringToParameters(NSString* str) {
 
 - (void)peerConnectionGetRtpSenderCapabilities:(nonnull NSDictionary*)argsMap
                                         result:(nonnull FlutterResult)result {
-  NSString* kind = argsMap[@"kind"];
-  RTCRtpCapabilities* caps =
-      [self.peerConnectionFactory rtpSenderCapabilitiesFor:mediaTypeFromString(kind)];
+//  NSString* kind = argsMap[@"kind"];
+//  RTCRtpCapabilities* caps =
+//      [self.peerConnectionFactory rtpSenderCapabilitiesFor:mediaTypeFromString(kind)];
   NSMutableArray* codecsMap = [NSMutableArray array];
-  for (RTCRtpCodecCapability* c in caps.codecs) {
-    if ([kind isEqualToString:@"audio"]) {
-      [codecsMap addObject:@{
-        @"channels" : c.numChannels,
-        @"clockRate" : c.clockRate,
-        @"mimeType" : c.mimeType,
-        @"sdpFmtpLine" : parametersToString(c.parameters),
-      }];
-    } else if ([kind isEqualToString:@"video"]) {
-      [codecsMap addObject:@{
-        @"clockRate" : c.clockRate,
-        @"mimeType" : c.mimeType,
-        @"sdpFmtpLine" : parametersToString(c.parameters),
-      }];
-    }
-  }
+//  for (RTCRtpCodecCapability* c in caps.codecs) {
+//    if ([kind isEqualToString:@"audio"]) {
+//      [codecsMap addObject:@{
+//        @"channels" : c.numChannels,
+//        @"clockRate" : c.clockRate,
+//        @"mimeType" : c.mimeType,
+//        @"sdpFmtpLine" : parametersToString(c.parameters),
+//      }];
+//    } else if ([kind isEqualToString:@"video"]) {
+//      [codecsMap addObject:@{
+//        @"clockRate" : c.clockRate,
+//        @"mimeType" : c.mimeType,
+//        @"sdpFmtpLine" : parametersToString(c.parameters),
+//      }];
+//    }
+//  }
   result(@{
     @"codecs" : codecsMap,
     @"headerExtensions" : @[],
@@ -790,41 +790,41 @@ NSDictionary<NSString*, NSString*>* stringToParameters(NSString* str) {
 
 - (void)transceiverSetCodecPreferences:(nonnull NSDictionary*)argsMap
                                 result:(nonnull FlutterResult)result {
-  NSString* peerConnectionId = argsMap[@"peerConnectionId"];
-  RTCPeerConnection* peerConnection = self.peerConnections[peerConnectionId];
-  if (peerConnection == nil) {
-    result([FlutterError
-        errorWithCode:@"transceiverSetCodecPreferencesFailed"
-              message:[NSString stringWithFormat:@"Error: peerConnection not found!"]
-              details:nil]);
-    return;
-  }
-  NSString* transceiverId = argsMap[@"transceiverId"];
-  RTCRtpTransceiver* transcevier = [self getRtpTransceiverById:peerConnection Id:transceiverId];
-  if (transcevier == nil) {
-    result([FlutterError errorWithCode:@"transceiverSetCodecPreferencesFailed"
-                               message:[NSString stringWithFormat:@"Error: transcevier not found!"]
-                               details:nil]);
-    return;
-  }
-  id codecs = argsMap[@"codecs"];
-  NSMutableArray* codecCaps = [NSMutableArray array];
-  for (id c in codecs) {
-    NSLog(@"codec %@", c);
-    NSArray* kindAndName = [c[@"mimeType"] componentsSeparatedByString:@"/"];
-    RTCRtpCodecCapability* codec = [[RTCRtpCodecCapability alloc] init];
-    codec.clockRate = c[@"clockRate"];
-    codec.kind = mediaTypeFromString([kindAndName[0] lowercaseString]);
-    codec.name = kindAndName[1];
-    if (c[@"sdpFmtpLine"] != nil && ![((NSString*)c[@"sdpFmtpLine"]) isEqualToString:@""]) {
-      codec.parameters = stringToParameters((NSString*)c[@"sdpFmtpLine"]);
-    }
-    if (c[@"channels"] != nil) {
-      codec.numChannels = c[@"channels"];
-    }
-    [codecCaps addObject:codec];
-  }
-  [transcevier setCodecPreferences:codecCaps];
+//  NSString* peerConnectionId = argsMap[@"peerConnectionId"];
+//  RTCPeerConnection* peerConnection = self.peerConnections[peerConnectionId];
+//  if (peerConnection == nil) {
+//    result([FlutterError
+//        errorWithCode:@"transceiverSetCodecPreferencesFailed"
+//              message:[NSString stringWithFormat:@"Error: peerConnection not found!"]
+//              details:nil]);
+//    return;
+//  }
+//  NSString* transceiverId = argsMap[@"transceiverId"];
+//  RTCRtpTransceiver* transcevier = [self getRtpTransceiverById:peerConnection Id:transceiverId];
+//  if (transcevier == nil) {
+//    result([FlutterError errorWithCode:@"transceiverSetCodecPreferencesFailed"
+//                               message:[NSString stringWithFormat:@"Error: transcevier not found!"]
+//                               details:nil]);
+//    return;
+//  }
+//  id codecs = argsMap[@"codecs"];
+//  NSMutableArray* codecCaps = [NSMutableArray array];
+//  for (id c in codecs) {
+//    NSLog(@"codec %@", c);
+//    NSArray* kindAndName = [c[@"mimeType"] componentsSeparatedByString:@"/"];
+//    RTCRtpCodecCapability* codec = [[RTCRtpCodecCapability alloc] init];
+//    codec.clockRate = c[@"clockRate"];
+//    codec.kind = mediaTypeFromString([kindAndName[0] lowercaseString]);
+//    codec.name = kindAndName[1];
+//    if (c[@"sdpFmtpLine"] != nil && ![((NSString*)c[@"sdpFmtpLine"]) isEqualToString:@""]) {
+//      codec.parameters = stringToParameters((NSString*)c[@"sdpFmtpLine"]);
+//    }
+//    if (c[@"channels"] != nil) {
+//      codec.numChannels = c[@"channels"];
+//    }
+//    [codecCaps addObject:codec];
+//  }
+//  [transcevier setCodecPreferences:codecCaps];
   result(nil);
 }
 
