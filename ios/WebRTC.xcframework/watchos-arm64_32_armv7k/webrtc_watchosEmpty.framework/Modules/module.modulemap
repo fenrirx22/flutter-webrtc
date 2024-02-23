@@ -1,0 +1,4 @@
+framework module webrtc_watchosEmpty {
+  header "webrtc_watchosEmpty-Swift.h"
+  requires objc
+}

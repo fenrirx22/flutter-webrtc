@@ -2,11 +2,11 @@
 
 #import <AVFoundation/AVFoundation.h>
 #import <CoreGraphics/CGImage.h>
-#import <WebRTC/RTCYUVHelper.h>
 #import <WebRTC/RTCYUVPlanarBuffer.h>
 #import <WebRTC/WebRTC.h>
 
 #import <objc/runtime.h>
+#include "libyuv.h"
 
 #import "FlutterWebRTCPlugin.h"
 
@@ -95,21 +95,14 @@
   id<RTCI420Buffer> buffer = [[RTCI420Buffer alloc] initWithWidth:rotated_width
                                                            height:rotated_height];
 
-  [RTCYUVHelper I420Rotate:src.dataY
-                srcStrideY:src.strideY
-                      srcU:src.dataU
-                srcStrideU:src.strideU
-                      srcV:src.dataV
-                srcStrideV:src.strideV
-                      dstY:(uint8_t*)buffer.dataY
-                dstStrideY:buffer.strideY
-                      dstU:(uint8_t*)buffer.dataU
-                dstStrideU:buffer.strideU
-                      dstV:(uint8_t*)buffer.dataV
-                dstStrideV:buffer.strideV
-                     width:src.width
-                     width:src.height
-                      mode:rotation];
+  I420Rotate(src.dataY, src.strideY,
+             src.dataU, src.strideU,
+             src.dataV, src.strideV,
+             (uint8_t*)buffer.dataY, buffer.strideY,
+             (uint8_t*)buffer.dataU,buffer.strideU,
+             (uint8_t*)buffer.dataV, buffer.strideV,
+             src.width, src.height,
+             (RotationModeEnum)rotation);
 
   return buffer;
 }
@@ -129,18 +122,18 @@
     uint8_t* dstUV = CVPixelBufferGetBaseAddressOfPlane(outputPixelBuffer, 1);
     const size_t dstUVStride = CVPixelBufferGetBytesPerRowOfPlane(outputPixelBuffer, 1);
 
-    [RTCYUVHelper I420ToNV12:i420Buffer.dataY
-                  srcStrideY:i420Buffer.strideY
-                        srcU:i420Buffer.dataU
-                  srcStrideU:i420Buffer.strideU
-                        srcV:i420Buffer.dataV
-                  srcStrideV:i420Buffer.strideV
-                        dstY:dstY
-                  dstStrideY:(int)dstYStride
-                       dstUV:dstUV
-                 dstStrideUV:(int)dstUVStride
-                       width:i420Buffer.width
-                       width:i420Buffer.height];
+    I420ToNV12(i420Buffer.dataY,
+               i420Buffer.strideY,
+               i420Buffer.dataU,
+               i420Buffer.strideU,
+               i420Buffer.dataV,
+               i420Buffer.strideV,
+               dstY,
+               (int)dstYStride,
+               dstUV,
+               (int)dstUVStride,
+               i420Buffer.width,
+               i420Buffer.height);
 
   } else {
     uint8_t* dst = CVPixelBufferGetBaseAddress(outputPixelBuffer);
@@ -149,29 +142,29 @@
     if (pixelFormat == kCVPixelFormatType_32BGRA) {
       // Corresponds to libyuv::FOURCC_ARGB
 
-      [RTCYUVHelper I420ToARGB:i420Buffer.dataY
-                    srcStrideY:i420Buffer.strideY
-                          srcU:i420Buffer.dataU
-                    srcStrideU:i420Buffer.strideU
-                          srcV:i420Buffer.dataV
-                    srcStrideV:i420Buffer.strideV
-                       dstARGB:dst
-                 dstStrideARGB:(int)bytesPerRow
-                         width:i420Buffer.width
-                        height:i420Buffer.height];
+      I420ToARGB(i420Buffer.dataY,
+                 i420Buffer.strideY,
+                 i420Buffer.dataU,
+                 i420Buffer.strideU,
+                 i420Buffer.dataV,
+                 i420Buffer.strideV,
+                 dst,
+                 (int)bytesPerRow,
+                 i420Buffer.width,
+                 i420Buffer.height);
 
     } else if (pixelFormat == kCVPixelFormatType_32ARGB) {
       // Corresponds to libyuv::FOURCC_BGRA
-      [RTCYUVHelper I420ToBGRA:i420Buffer.dataY
-                    srcStrideY:i420Buffer.strideY
-                          srcU:i420Buffer.dataU
-                    srcStrideU:i420Buffer.strideU
-                          srcV:i420Buffer.dataV
-                    srcStrideV:i420Buffer.strideV
-                       dstBGRA:dst
-                 dstStrideBGRA:(int)bytesPerRow
-                         width:i420Buffer.width
-                        height:i420Buffer.height];
+      I420ToBGRA(i420Buffer.dataY,
+                 i420Buffer.strideY,
+                 i420Buffer.dataU,
+                 i420Buffer.strideU,
+                 i420Buffer.dataV,
+                 i420Buffer.strideV,
+                 dst,
+                 (int)bytesPerRow,
+                 i420Buffer.width,
+                 i420Buffer.height);
     }
   }
 
