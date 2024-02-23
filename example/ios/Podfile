@@ -27,12 +27,11 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 
 flutter_ios_podfile_setup
 
-source = 'https://bitbucket.org/adtoriondevelopment/webrtc-ios'
+source = ''
 
 target 'Runner' do
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
-
-  pod 'WebRTC', :git => 'https://bitbucket.org/adtoriondevelopment/webrtc-ios.git'
+  
   target 'RunnerTests' do
     inherit! :search_paths
   end
